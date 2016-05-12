@@ -175,9 +175,9 @@ public class InvertedIndexerHbase {
          	  	  for(int i = 0;i < wordArrayList.size();i += 2){
          		 	addData("Wuxia",wordArrayList.get(i).toString(), "average", "average for every word", wordArrayList.get(i+1).toString());
          	          }
-		  	  } catch (Exception e) {
-			  	e.printStackTrace();
-		  	  }
+		} catch (Exception e) {
+			  e.printStackTrace();
+		}
 	  }
 }
 
