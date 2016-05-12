@@ -1,24 +1,15 @@
 package cn.edu.nju;
 import java.io.FileWriter;
 import java.io.IOException;
-//import java.io.FileWriter;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
-//import java.io.PrintWriter;
-
-
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
-//import org.apache.hadoop.hbase.client.HBaseAdmin;
-//import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
-
 
 public class Hbase2Local {
     static Configuration conf = HBaseConfiguration.create();
@@ -38,7 +29,6 @@ public class Hbase2Local {
             }
             fos.close();
         } catch (IOException e) {
-            // TODO: handle exception
             e.printStackTrace();
         }
         rs.close();
