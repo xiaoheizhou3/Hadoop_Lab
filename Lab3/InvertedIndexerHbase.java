@@ -1,5 +1,4 @@
 package cn.nju.edu;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -27,33 +26,26 @@ import org.apache.hadoop.hbase.util.Bytes;
 public class InvertedIndexerHbase {
 	  private static Configuration configuration = HBaseConfiguration.create();	    
 	  private static ArrayList<String> wordArrayList = new ArrayList<>();
-	  
 	  public static class InvertedIndexMapper extends Mapper<Object, Text, Text, IntWritable> {
-		  //    private Set<String> stopwords;
-		  //    private Path[] localFiles;   
 		  public int getCharacterPosition(String string){
 			  Matcher slashMatcher = Pattern.compile("(\\.txt)|(\\.TXT)").matcher(string);
-			  if(slashMatcher.find()){
-				  return slashMatcher.start();
-			  }
+			  if(slashMatcher.find()){ return slashMatcher.start();}
 			  return 0;
 		  }
     
 		  public void map( Object key, Text value,Context context)
 				  throws IOException,InterruptedException {
-			  //´¦ÀíÎÄ¼şÃû£¬×ö·Ö¸î
 			  FileSplit fileSplit = (FileSplit) context.getInputSplit();
 			  String completeFileName = fileSplit.getPath().getName();
 			  int dotIndex = getCharacterPosition(completeFileName);
-			  String fileName = completeFileName.substring(0, dotIndex);
-                //½øĞĞmapµÄ¹ı³Ì
+			  String fileName = completeFileName.substring(0, dotIndex)ï¼›
 			  String tempString = new String();
 			  String lineString = value.toString().toLowerCase();
 			  StringTokenizer itrStringTokenizer = new StringTokenizer(lineString);
 			  while(itrStringTokenizer.hasMoreTokens()){
 				  tempString = itrStringTokenizer.nextToken();
 				  Text word = new Text();
-				  word.set(tempString + "#" + fileName);//ÉèÖÃĞÂµÄkey
+				  word.set(tempString + "#" + fileName);//è®¾ç½®æ–°çš„key
 				  context.write(word, new IntWritable(1));
 			  }
 		  }
@@ -64,9 +56,7 @@ public class InvertedIndexerHbase {
 		  public void reduce (Text key,Iterable<IntWritable> values,Context context)
 				  throws IOException,InterruptedException {
 			  int sum = 0;
-			  for(IntWritable valIntWritable : values){
-				  sum += valIntWritable.get();
-			  }
+			  for(IntWritable valIntWritable : values){ sum += valIntWritable.get(); }
 			  resultIntWritable.set(sum);
 			  context.write(key, resultIntWritable);
 		  }
@@ -87,8 +77,6 @@ public class InvertedIndexerHbase {
 		  Text currentItem = new Text(" ");
 		  ArrayList<String> postingList = new ArrayList<String>();
 		  private int fileCount = 0;
-  
-		  //ÓÃÓÚ½«´ÊÆµ±£ÁôÁ½Î»Ğ¡ÊıµÄ´¦Àíº¯Êı
 		  public double round(double value,int scale,int roundingMode){
 			  BigDecimal bdBigDecimal = new BigDecimal(value);
 			  bdBigDecimal = bdBigDecimal.setScale(scale, roundingMode);
@@ -99,14 +87,13 @@ public class InvertedIndexerHbase {
     
 		  public void reduce( Text key, Iterable<IntWritable> values, Context context )
     		throws IOException,InterruptedException {
-			  //×îºóÒ»¸ö´ÊÓïÓÉcleanupº¯ÊıÊä³ö
 			  int sum = 0;
 			  word1.set(key.toString().split("#")[0]);
 			  temp = key.toString().split("#")[1];
 			  for(IntWritable valIntWritable : values){
-				  sum += valIntWritable.get();//°Ñ´ÊÓï³öÏÖ´ÎÊı¼ÓÆğÀ´
+				  sum += valIntWritable.get();//æŠŠè¯è¯­å‡ºç°æ¬¡æ•°åŠ èµ·æ¥
 			  }
-			  fileCount++;//ÎÄ¼ş¸öÊıÍ³¼Æ
+			  fileCount++;//æ–‡ä»¶ä¸ªæ•°ç»Ÿè®¡
 			  word2.set(temp + ":" + sum + ";");
 			  if(!currentItem.equals(word1) && !currentItem.equals("")){
 				  StringBuilder outBuilder = new StringBuilder();
@@ -118,7 +105,7 @@ public class InvertedIndexerHbase {
 				  StringBuilder outputStringBuilder = new StringBuilder();
 				  Double average_count = round((double)((double)count/(double)fileCount),2,BigDecimal.ROUND_DOWN);
 				  outputStringBuilder.append(outBuilder);
-                       //roundº¯ÊıÊÇ×Ô¼º¶¨ÒåµÄ£¬ÎªÁË°Ñ´ÊÆµ½á¹û±£ÁôÁ½Î»Ğ¡Êı
+                       //roundå‡½æ•°æ˜¯è‡ªå·±å®šä¹‰çš„ï¼Œä¸ºäº†æŠŠè¯é¢‘ç»“æœä¿ç•™ä¸¤ä½å°æ•°
 				  wordArrayList.add(word1.toString());
 				  wordArrayList.add(average_count.toString());
 				  if(count > 0)
@@ -129,7 +116,7 @@ public class InvertedIndexerHbase {
 			  currentItem = new Text(word1);
 			  postingList.add(word2.toString());
 		  }
-		  //cleanupÊÇÎªÁË×îºóÒ»¸ö´ÊÓïµÄÊä³ö
+		  //cleanupæ˜¯ä¸ºäº†æœ€åä¸€ä¸ªè¯è¯­çš„è¾“å‡º
 		  public void cleanup(Context context) throws IOException,InterruptedException{
 			  StringBuilder outBuilder = new StringBuilder();
 			  int count = 0;
@@ -159,16 +146,13 @@ public class InvertedIndexerHbase {
 			  put.add(Bytes.toBytes(family),Bytes.toBytes(qualifier),Bytes.toBytes(value));
 			  table.put(put);
 //			  	System.out.println("insert record success!");
-		  }catch(IOException e){
-			  e.printStackTrace();
-		  }	
+		  }catch(IOException e){ e.printStackTrace(); }	
 	  }
 
 	  @SuppressWarnings("deprecation")
 	  public static void main(String[] args){
 		  try {
 			  Configuration conf = new Configuration();
-//        	    DistributedCache.addCacheFile(new URI(""), conf);
 			  Job job = new Job(conf);
 			  job.setJarByClass(InvertedIndexerHbase.class);
 
@@ -180,22 +164,20 @@ public class InvertedIndexerHbase {
 			  job.setPartitionerClass(NewPartitioner.class);
 
 			  job.setMapOutputKeyClass(Text.class);
-         	  job.setMapOutputValueClass(IntWritable.class);
+         	  	  job.setMapOutputValueClass(IntWritable.class);
 
-         	  job.setOutputKeyClass(Text.class);
-         	  job.setOutputValueClass(Text.class);    
+         	  	  job.setOutputKeyClass(Text.class);
+         	  	  job.setOutputValueClass(Text.class);    
 
-         	  FileInputFormat.addInputPath(job,new Path(args[0]));
-         	  FileOutputFormat.setOutputPath(job,new Path(args[1]));
-//         	  System.exit(job.waitForCompletion(true) ? 0 : 1);
-         	  job.waitForCompletion(true);
-         	  System.out.println("the size of wordArrayList:"+wordArrayList.size());
-         	  for(int i = 0;i < wordArrayList.size();i += 2){
-         		 addData("Wuxia",wordArrayList.get(i).toString(), "average", "average for every word", wordArrayList.get(i+1).toString());
-         	  }
-		  } catch (Exception e) {
-			  e.printStackTrace();
-		  }
+         	  	  FileInputFormat.addInputPath(job,new Path(args[0]));
+         	  	  FileOutputFormat.setOutputPath(job,new Path(args[1]));
+         	  	  job.waitForCompletion(true)ï¼›
+         	  	  for(int i = 0;i < wordArrayList.size();i += 2){
+         		 	addData("Wuxia",wordArrayList.get(i).toString(), "average", "average for every word", wordArrayList.get(i+1).toString());
+         	          }
+		  	  } catch (Exception e) {
+			  	e.printStackTrace();
+		  	  }
 	  }
 }
 
